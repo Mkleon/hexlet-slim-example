@@ -22,4 +22,11 @@ $app->get(
     }
 );
 
+$app->post(
+    '/users',
+    function ($request, $response) {
+        return $response->withStatus(302);
+    }
+);
+
 $app->run();

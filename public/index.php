@@ -35,7 +35,9 @@ $app->get(
 $app->get(
     '/users/{id}',
     function ($request, $response, $args) {
-        $params = ['id' => $args['id']];
+        $params = [
+            'id' => $args['id']
+        ];
 
         return $this->get('renderer')->render($response, 'users/show.phtml', $params);
     }

@@ -2,9 +2,16 @@
     <input type="search" required name="term" value="<?php echo htmlspecialchars($term) ?>" />
     <input type="submit" value="Search">
 </form>
+<a href="/users">Clear filter</a>
 
-<ul>
+<table>
     <?php foreach ($users as $user): ?>
-        <li><?php echo $user; ?></li>
+        <tr>
+            <td style="width: 200px;"><?php echo $user['id']; ?></td>
+            <td style="width: 200px;"><?php echo $user['nickname']; ?></td>
+            <td><a href="mailto:<?= $user['email'] ?>"><?= $user['email']; ?></a></td>
+        </tr>
     <?php endforeach ?>
-</ul>
+</table>
+
+<a href="/users/new">Add new user</a>

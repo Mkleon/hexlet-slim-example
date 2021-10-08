@@ -1,4 +1,10 @@
 {
+    "name": "mkleon/hexlet-slim-example",
+    "autoload": {
+        "psr-4": {
+            "Hexlet\\Slim\\Example\\": "src/"
+        }
+    },
     "require": {
         "slim/slim": "^4.8",
         "slim/psr7": "^1.5",

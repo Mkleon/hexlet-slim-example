@@ -4,6 +4,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use Slim\Factory\AppFactory;
 use DI\Container;
+use Hexlet\Slim\Example\Validator;
+use Hexlet\Slim\Example\UserRepository;
 
 $container = new Container();
 $container->set(
@@ -16,7 +18,7 @@ $container->set(
 $app = AppFactory::createFromContainer($container);
 $app->addErrorMiddleware(true, true, true);
 
-$users = ['mike', 'mishel', 'adel', 'keks', 'kamila'];
+$repo = new UserRepository('user_repository.json');
 
 $app->get(
     '/', 
@@ -34,11 +36,13 @@ $app->get(
     }
 );
 
+
 $app->get(
     '/users',
-    function ($request, $response, $args) use ($users) {
+    function ($request, $response, $args) use ($repo) {
         $term = $request->getQueryParam('term');
-        $filteredUsers = array_filter($users, fn ($item) => str_contains($item, $term));
+        $users = $repo->all();
+        $filteredUsers = array_filter($users, fn ($item) => str_contains(strtolower($item['nickname']), strtolower($term)));
 
         $params = [
             'term' => $term,
@@ -49,6 +53,20 @@ $app->get(
     }
 );
 
+
+$app->get(
+    '/users/new',
+    function ($request, $response) {
+        $params = [
+            'user' => ['nickname' => '', 'email' => ''],
+            'errors' => []
+        ];
+
+        return $this->get('renderer')->render($response, 'users/new.phtml', $params);
+    }
+);
+
+
 $app->get(
     '/users/{id}',
     function ($request, $response, $args) {
@@ -57,6 +75,28 @@ $app->get(
         ];
 
         return $this->get('renderer')->render($response, 'users/show.phtml', $params);
+    }
+);
+
+
+$app->post(
+    '/users',
+    function ($request, $response) use ($repo) {
+        $validator = new Validator();
+        $user = $request->getParsedBodyParam('user');
+        $errors = $validator->validate($user);
+
+        if (count($errors) === 0) {
+            $repo->save($user);
+            return $response->withRedirect('/users', 302);
+        }
+
+        $params = [
+            'user' => $user,
+            'errors' => $errors
+        ];
+
+        return $this->get('renderer')->render($response, "users/new.phtml", $params);
     }
 );
 

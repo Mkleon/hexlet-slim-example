@@ -34,7 +34,7 @@ $app->get(
         $id = $args['id'];
         return $response->write("Course id: {$id}");
     }
-);
+)->setName('course');
 
 
 $app->get(
@@ -51,7 +51,7 @@ $app->get(
 
         return $this->get('renderer')->render($response, 'users/index.phtml', $params);
     }
-);
+)->setName('users');
 
 
 $app->get(
@@ -76,19 +76,20 @@ $app->get(
 
         return $this->get('renderer')->render($response, 'users/show.phtml', $params);
     }
-);
+)->setName('user');
 
+$router = $app->getRouteCollector()->getRouteParser();
 
 $app->post(
     '/users',
-    function ($request, $response) use ($repo) {
+    function ($request, $response) use ($repo, $router) {
         $validator = new Validator();
         $user = $request->getParsedBodyParam('user');
         $errors = $validator->validate($user);
 
         if (count($errors) === 0) {
             $repo->save($user);
-            return $response->withRedirect('/users', 302);
+            return $response->withRedirect($router->urlFor('users'), 302);
         }
 
         $params = [

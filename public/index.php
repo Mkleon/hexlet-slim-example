@@ -7,11 +7,20 @@ use DI\Container;
 use Hexlet\Slim\Example\Validator;
 use Hexlet\Slim\Example\UserRepository;
 
+session_start();
+
 $container = new Container();
 $container->set(
     'renderer',
     function () {
         return new \Slim\Views\PhpRenderer(__DIR__ . '/../templates');
+    }
+);
+
+$container->set(
+    'flash',
+    function () {
+        return new \Slim\Flash\Messages();
     }
 );
 
@@ -44,9 +53,12 @@ $app->get(
         $users = $repo->all();
         $filteredUsers = array_filter($users, fn ($item) => str_contains(strtolower($item['nickname']), strtolower($term)));
 
+        $messages = $this->get('flash')->getMessages();
+
         $params = [
             'term' => $term,
-            'users' => $filteredUsers
+            'users' => $filteredUsers,
+            'flash' => $messages
         ];
 
         return $this->get('renderer')->render($response, 'users/index.phtml', $params);
@@ -95,6 +107,9 @@ $app->post(
 
         if (count($errors) === 0) {
             $repo->save($user);
+
+            $this->get('flash')->addMessage('success', "User {$user['nickname']} has been successfully added!");
+
             return $response->withRedirect($router->urlFor('users'), 302);
         }
 

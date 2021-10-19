@@ -69,9 +69,15 @@ $app->get(
 
 $app->get(
     '/users/{id}',
-    function ($request, $response, $args) {
+    function ($request, $response, $args) use ($repo) {
+        $id = $args['id'];
+
+        if (empty($repo->find($id))) {
+            return $this->get('renderer')->render($response, '404.phtml')->withStatus(404);
+        }
+
         $params = [
-            'id' => $args['id']
+            'id' => $id
         ];
 
         return $this->get('renderer')->render($response, 'users/show.phtml', $params);

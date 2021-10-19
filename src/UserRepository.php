@@ -29,6 +29,14 @@ class UserRepository
         );
     }
 
+    public function find(string $id)
+    {
+        $content = $this->all();
+        $user = collect($content)->firstWhere('id', $id);
+
+        return $user;
+    }
+
     public function all()
     {
         $content = file_get_contents($this->getFullPath());
